@@ -55,6 +55,14 @@ interface Stats {
 
 // ==================== HAPTIC FEEDBACK ====================
 const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
+  // Check if iOS (haptics not supported via vibrate API)
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  
+  if (isIOS) {
+    return; // iOS doesn't support navigator.vibrate
+  }
+  
   try {
     if ('vibrate' in navigator) {
       const patterns = {
@@ -1370,7 +1378,29 @@ function App() {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [theme, setTheme] = useState<Theme>('dark');
   const [showStats, setShowStats] = useState(false);
+  const [showStartButton, setShowStartButton] = useState(true);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+
+  const initializeAudio = useCallback(() => {
+    audioSystem.init();
+    
+    if (audioSystem.context && audioSystem.context.state === 'suspended') {
+      audioSystem.context.resume();
+    }
+    
+    // Play silent sound to unlock
+    if (soundEnabled && audioSystem.context && audioSystem.masterGain) {
+      const osc = audioSystem.context.createOscillator();
+      const gain = audioSystem.context.createGain();
+      gain.gain.value = 0.01;
+      osc.connect(gain);
+      gain.connect(audioSystem.masterGain);
+      osc.start();
+      osc.stop(audioSystem.context.currentTime + 0.01);
+    }
+    
+    setShowStartButton(false);
+  }, [soundEnabled]);
 
   useEffect(() => {
     if (soundEnabled) audioSystem.init();
@@ -1617,6 +1647,45 @@ function App() {
 
       {showStats && (
         <StatsModal stats={loadStats()} onClose={() => setShowStats(false)} theme={theme} />
+      )}
+
+      {showStartButton && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10000,
+            gap: '24px',
+          }}
+          onClick={initializeAudio}
+        >
+          <div style={{ fontSize: '4rem' }}>🎮</div>
+          <h2 style={{ fontSize: '2rem', margin: 0, color: '#fff' }}>Zipper Merge</h2>
+          <button
+            style={{
+              padding: '16px 48px',
+              fontSize: '1.2rem',
+              fontWeight: '600',
+              border: 'none',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: '#fff',
+              cursor: 'pointer',
+              boxShadow: '0 8px 32px rgba(102,126,234,0.4)',
+            }}
+          >
+            Tap to Start
+          </button>
+          <p style={{ fontSize: '0.9rem', opacity: 0.7, color: '#fff' }}>
+            {soundEnabled ? '🔊 Sound On' : '🔇 Sound Off'}
+          </p>
+        </div>
       )}
     </div>
   );
