@@ -53,6 +53,22 @@ interface Stats {
   highestTile: number;
 }
 
+// ==================== HAPTIC FEEDBACK ====================
+const triggerHaptic = (style: 'light' | 'medium' | 'heavy' = 'light') => {
+  try {
+    if ('vibrate' in navigator) {
+      const patterns = {
+        light: [10],
+        medium: [20],
+        heavy: [30]
+      };
+      navigator.vibrate(patterns[style]);
+    }
+  } catch (e) {
+    // Haptics not supported, silently fail
+  }
+};
+
 // ==================== GAME ENGINE ====================
 let nextId = 0;
 
@@ -787,8 +803,11 @@ const Tile: React.FC<{ tile: Tile; size: number; theme: Theme }> = ({ tile, size
         fontWeight: 'bold',
         fontSize: `${fontSize}rem`,
         color: tile.value > 4 ? '#fff' : themes[theme].text,
-        transition: 'left 200ms ease-in-out, top 200ms ease-in-out',
+        transition: 'left 250ms cubic-bezier(0.4, 0.0, 0.2, 1), top 250ms cubic-bezier(0.4, 0.0, 0.2, 1), transform 250ms cubic-bezier(0.4, 0.0, 0.2, 1)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        willChange: 'left, top, transform',
+        transform: 'translateZ(0)',
+        backfaceVisibility: 'hidden',
       }}
     >
       {tile.value}
@@ -1373,6 +1392,7 @@ function App() {
       const moved = move(engine, direction, boardSize);
 
       if (moved) {
+        triggerHaptic('light'); // Haptic for tile movement
         if (soundEnabled) audioSystem.playMove();
 
         const mergedTiles = engine.state.tiles.filter((t) => t.justMerged);
@@ -1386,13 +1406,17 @@ function App() {
 
           // Use enhanced fireworks for 32+
           if (tile.value >= 32) {
+            triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium'); // Stronger haptic for higher tiles
             const newParticles = createEnhancedFireworks(x, y, tile.value, color);
             setParticles((prev) => [...prev, ...newParticles]);
             if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
+          } else {
+            triggerHaptic('light'); // Light haptic for smaller merges
           }
         });
 
         if (engine.state.comboCount > 1 && soundEnabled) {
+          triggerHaptic('medium'); // Haptic for combos
           audioSystem.playCombo(engine.state.comboCount);
         }
 
@@ -1460,6 +1484,7 @@ function App() {
 
   useEffect(() => {
     const handleTouchStart = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent page scrolling
       touchStartRef.current = {
         x: e.touches[0].clientX,
         y: e.touches[0].clientY,
@@ -1467,6 +1492,7 @@ function App() {
     };
 
     const handleTouchEnd = (e: TouchEvent) => {
+      e.preventDefault(); // Prevent page scrolling
       if (!touchStartRef.current) return;
 
       const deltaX = e.changedTouches[0].clientX - touchStartRef.current.x;
@@ -1485,8 +1511,8 @@ function App() {
       touchStartRef.current = null;
     };
 
-    window.addEventListener('touchstart', handleTouchStart);
-    window.addEventListener('touchend', handleTouchEnd);
+    window.addEventListener('touchstart', handleTouchStart, { passive: false });
+    window.addEventListener('touchend', handleTouchEnd, { passive: false });
 
     return () => {
       window.removeEventListener('touchstart', handleTouchStart);
