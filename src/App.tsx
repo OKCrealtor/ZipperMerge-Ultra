@@ -1121,139 +1121,188 @@ const HUD: React.FC<{
   return (
     <div
       style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
         marginBottom: '20px',
-        flexWrap: 'wrap',
-        gap: '12px',
       }}
     >
-      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+      {/* Top Row: Score and Best */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px',
+          marginBottom: '12px',
+        }}
+      >
         <div
           style={{
-            background: 'rgba(255,255,255,0.1)',
-            padding: '12px 20px',
+            background: themes[theme].boardBg,
+            padding: '16px',
             borderRadius: '8px',
-            minWidth: '100px',
+            textAlign: 'center',
           }}
         >
-          <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>SCORE</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{score}</div>
-        </div>
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.1)',
-            padding: '12px 20px',
-            borderRadius: '8px',
-            minWidth: '100px',
-          }}
-        >
-          <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>BEST</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{highScore}</div>
-        </div>
-        <div
-          style={{
-            background: 'rgba(255,255,255,0.1)',
-            padding: '12px 20px',
-            borderRadius: '8px',
-          }}
-        >
-          <div style={{ fontSize: '0.8rem', opacity: 0.8 }}>MOVES</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>{moves}</div>
-        </div>
-        {comboCount > 1 && (
-          <div
-            className="combo-badge"
-            style={{
-              background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
-              padding: '12px 20px',
-              borderRadius: '8px',
-              animation: 'pulse 0.5s ease-in-out',
-            }}
-          >
-            <div style={{ fontSize: '0.8rem' }}>COMBO</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>×{comboCount}</div>
+          <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '4px', fontWeight: '600', letterSpacing: '0.5px' }}>
+            SCORE
           </div>
-        )}
+          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{score}</div>
+        </div>
+        <div
+          style={{
+            background: themes[theme].boardBg,
+            padding: '16px',
+            borderRadius: '8px',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '4px', fontWeight: '600', letterSpacing: '0.5px' }}>
+            BEST
+          </div>
+          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{highScore}</div>
+        </div>
       </div>
 
-      <div style={{ display: 'flex', gap: '8px' }}>
+      {/* Second Row: New and Undo buttons */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '12px',
+          marginBottom: '16px',
+        }}
+      >
+        <button
+          onClick={onRestart}
+          className="game-button"
+          style={{
+            padding: '16px',
+            borderRadius: '8px',
+            border: 'none',
+            background: '#ff6b5a',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '1rem',
+            fontWeight: '700',
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+          }}
+        >
+          New
+        </button>
         <button
           onClick={onUndo}
           disabled={undosRemaining === 0}
+          className="game-button"
           style={{
-            padding: '10px 16px',
+            padding: '16px',
             borderRadius: '8px',
             border: 'none',
-            background: undosRemaining > 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)',
+            background: undosRemaining > 0 ? '#ff6b5a' : themes[theme].cellBg,
             color: '#fff',
             cursor: undosRemaining > 0 ? 'pointer' : 'not-allowed',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-            opacity: undosRemaining > 0 ? 1 : 0.5,
+            fontSize: '1rem',
+            fontWeight: '700',
+            letterSpacing: '0.5px',
+            textTransform: 'uppercase',
+            opacity: undosRemaining > 0 ? 1 : 0.4,
           }}
         >
-          ↶ Undo ({undosRemaining})
+          Undo
         </button>
-        <button
-          onClick={onToggleSound}
+      </div>
+
+      {/* Bottom Row: Settings and extras */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button
+            onClick={onToggleSound}
+            className="game-button"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              background: themes[theme].boardBg,
+              color: themes[theme].text,
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+            }}
+          >
+            {soundEnabled ? '🔊' : '🔇'}
+          </button>
+          <button
+            onClick={onToggleTheme}
+            className="game-button"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              background: themes[theme].boardBg,
+              color: themes[theme].text,
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+            }}
+          >
+            🎨
+          </button>
+          <button
+            onClick={onShowStats}
+            className="game-button"
+            style={{
+              padding: '8px 12px',
+              borderRadius: '6px',
+              border: 'none',
+              background: themes[theme].boardBg,
+              color: themes[theme].text,
+              cursor: 'pointer',
+              fontSize: '1.1rem',
+            }}
+          >
+            📊
+          </button>
+        </div>
+
+        <div
           style={{
-            padding: '10px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'rgba(255,255,255,0.2)',
-            color: '#fff',
-            cursor: 'pointer',
+            background: themes[theme].boardBg,
+            padding: '8px 16px',
+            borderRadius: '6px',
             fontSize: '0.9rem',
             fontWeight: '600',
           }}
         >
-          {soundEnabled ? '🔊' : '🔇'}
-        </button>
-        <button
-          onClick={onToggleTheme}
+          {moves} moves
+        </div>
+      </div>
+
+      {/* Combo badge - positioned absolutely so it doesn't push layout */}
+      {comboCount > 1 && (
+        <div
+          className="combo-badge"
           style={{
-            padding: '10px 16px',
+            position: 'absolute',
+            top: '120px',
+            right: '20px',
+            background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
+            padding: '12px 20px',
             borderRadius: '8px',
-            border: 'none',
-            background: 'rgba(255,255,255,0.2)',
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: '600',
+            animation: 'pulse 0.6s ease-in-out infinite',
+            boxShadow: '0 4px 16px rgba(255,107,107,0.5)',
+            zIndex: 100,
           }}
         >
-          🎨
-        </button>
-        <button
-          onClick={onShowStats}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'rgba(255,255,255,0.2)',
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-          }}
-        >
-          📊
-        </button>
-        <button
-          onClick={onRestart}
-          style={{
-            padding: '10px 16px',
-            borderRadius: '8px',
-            border: 'none',
-            background: 'rgba(255,255,255,0.2)',
-            color: '#fff',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-          }}
-        >
+          <div style={{ fontSize: '0.75rem', marginBottom: '2px' }}>COMBO</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>×{comboCount}</div>
+        </div>
+      )}
+    </div>
+  );
+};
           🔄 New Game
         </button>
       </div>
@@ -1570,7 +1619,7 @@ function App() {
         justifyContent: 'center',
       }}
     >
-      <div style={{ maxWidth: '600px', width: '100%' }}>
+      <div style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
         <h1
           style={{
             textAlign: 'center',
