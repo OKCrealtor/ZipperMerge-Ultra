@@ -1,0 +1,310 @@
+/* ==================== ANIMATIONS ==================== */
+
+@keyframes tile-spawn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tile-merge {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-slide-up {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* ==================== BASE STYLES ==================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* ==================== TILE ANIMATIONS ==================== */
+
+.tile-spawn {
+  animation: tile-spawn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.tile-merge {
+  animation: tile-merge 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ==================== COMBO BADGE ==================== */
+
+.combo-badge {
+  animation: pulse 0.6s ease-in-out infinite;
+}
+
+/* ==================== BUTTON STYLES ==================== */
+
+.game-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.game-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.game-button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.game-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.game-button:disabled {
+  transform: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.5 !important;
+}
+
+.game-button:disabled::before {
+  display: none;
+}
+
+/* ==================== MODAL STYLES ==================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: modal-fade-in 0.3s ease-out;
+}
+
+.modal-content {
+  border-radius: 20px;
+  padding: 40px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: modal-slide-up 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-fade-in {
+  animation: modal-fade-in 0.3s ease-out;
+}
+
+.modal-slide-up {
+  animation: modal-slide-up 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ==================== ACHIEVEMENT ITEMS ==================== */
+
+.achievement-item {
+  transition: all 0.3s ease;
+}
+
+.achievement-item:hover {
+  transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== SCROLLBAR STYLING ==================== */
+
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+
+@media (max-width: 640px) {
+  .modal-content {
+    padding: 24px;
+    max-height: 85vh;
+  }
+
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.5rem !important;
+  }
+
+  .game-button {
+    font-size: 0.85rem !important;
+    padding: 8px 12px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-content {
+    padding: 20px;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+}
+
+/* ==================== FOCUS STATES ==================== */
+
+.game-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* ==================== REDUCED MOTION ==================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ==================== PARTICLE PERFORMANCE ==================== */
+
+.particle {
+  will-change: transform, opacity;
+  pointer-events: none;
+}
+
+/* ==================== SMOOTH SCROLLING ==================== */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ==================== SELECTION STYLING ==================== */
+
+::selection {
+  background: rgba(255, 255, 255, 0.2);
+  color: inherit;
+}
+
+/* ==================== PERFORMANCE OPTIMIZATIONS ==================== */
+
+.tile {
+  will-change: left, top;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+.game-button,
+.modal-content {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
+
+/* ==================== TOUCH DEVICE OPTIMIZATIONS ==================== */
+
+@media (hover: none) and (pointer: coarse) {
+  .game-button:hover {
+    transform: none;
+  }
+
+  .game-button:active {
+    transform: scale(0.95);
+  }
+}
