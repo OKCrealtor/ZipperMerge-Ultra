@@ -1212,6 +1212,10 @@ const HUD: React.FC<{
         {/* Menu Button */}
         <button
           onClick={onToggleMenu}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            onToggleMenu();
+          }}
           className="game-button"
           style={{
             padding: '0 16px',
@@ -1222,6 +1226,8 @@ const HUD: React.FC<{
             cursor: 'pointer',
             fontSize: '1.5rem',
             fontWeight: '600',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           ☰
@@ -1238,6 +1244,10 @@ const HUD: React.FC<{
       >
         <button
           onClick={onRestart}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            onRestart();
+          }}
           className="game-button"
           style={{
             padding: '14px',
@@ -1250,12 +1260,18 @@ const HUD: React.FC<{
             fontWeight: '700',
             letterSpacing: '1px',
             textTransform: 'uppercase',
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           New
         </button>
         <button
           onClick={onUndo}
+          onTouchEnd={(e) => {
+            e.preventDefault();
+            if (undosRemaining > 0) onUndo();
+          }}
           disabled={undosRemaining === 0}
           className="game-button"
           style={{
@@ -1270,6 +1286,8 @@ const HUD: React.FC<{
             letterSpacing: '1px',
             textTransform: 'uppercase',
             opacity: undosRemaining > 0 ? 1 : 0.4,
+            touchAction: 'manipulation',
+            WebkitTapHighlightColor: 'transparent',
           }}
         >
           Undo
@@ -1349,6 +1367,11 @@ const HUD: React.FC<{
                 onToggleSound();
                 onToggleMenu();
               }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
+                onToggleSound();
+                onToggleMenu();
+              }}
               className="game-button"
               style={{
                 padding: '16px',
@@ -1363,6 +1386,8 @@ const HUD: React.FC<{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
               <span style={{ fontSize: '1.5rem' }}>{soundEnabled ? '🔊' : '🔇'}</span>
@@ -1371,6 +1396,11 @@ const HUD: React.FC<{
 
             <button
               onClick={() => {
+                onToggleTheme();
+                onToggleMenu();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
                 onToggleTheme();
                 onToggleMenu();
               }}
@@ -1388,6 +1418,8 @@ const HUD: React.FC<{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
               <span style={{ fontSize: '1.5rem' }}>🎨</span>
@@ -1396,6 +1428,11 @@ const HUD: React.FC<{
 
             <button
               onClick={() => {
+                onShowStats();
+                onToggleMenu();
+              }}
+              onTouchEnd={(e) => {
+                e.preventDefault();
                 onShowStats();
                 onToggleMenu();
               }}
@@ -1413,6 +1450,8 @@ const HUD: React.FC<{
                 display: 'flex',
                 alignItems: 'center',
                 gap: '12px',
+                touchAction: 'manipulation',
+                WebkitTapHighlightColor: 'transparent',
               }}
             >
               <span style={{ fontSize: '1.5rem' }}>📊</span>
@@ -1624,19 +1663,19 @@ function App() {
           const color = themes[theme].tiles[tile.value] || '#fff';
 
           // Use enhanced fireworks for 32+
-         if (tile.value >= 32) {
-  triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium');
-  
-  // Disable particles on mobile for 60fps
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (!isMobile) {
-    const newParticles = createEnhancedFireworks(x, y, tile.value, color);
-    setParticles((prev) => [...prev, ...newParticles]);
-  }
-  
-  if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
-}
-            triggerHaptic('light'); // Light haptic for smaller merges
+          if (tile.value >= 32) {
+            triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium');
+            
+            // Disable particles on mobile for 60fps performance
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            if (!isMobile) {
+              const newParticles = createEnhancedFireworks(x, y, tile.value, color);
+              setParticles((prev) => [...prev, ...newParticles]);
+            }
+            
+            if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
+          } else {
+            triggerHaptic('light');
           }
         });
 
