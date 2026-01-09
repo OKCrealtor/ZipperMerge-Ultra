@@ -1624,12 +1624,18 @@ function App() {
           const color = themes[theme].tiles[tile.value] || '#fff';
 
           // Use enhanced fireworks for 32+
-          if (tile.value >= 32) {
-            triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium'); // Stronger haptic for higher tiles
-            const newParticles = createEnhancedFireworks(x, y, tile.value, color);
-            setParticles((prev) => [...prev, ...newParticles]);
-            if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
-          } else {
+         if (tile.value >= 32) {
+  triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium');
+  
+  // Disable particles on mobile for 60fps
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!isMobile) {
+    const newParticles = createEnhancedFireworks(x, y, tile.value, color);
+    setParticles((prev) => [...prev, ...newParticles]);
+  }
+  
+  if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
+}
             triggerHaptic('light'); // Light haptic for smaller merges
           }
         });
