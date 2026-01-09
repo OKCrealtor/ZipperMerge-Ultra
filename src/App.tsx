@@ -733,11 +733,15 @@ const themes: Record<Theme, any> = {
     },
   },
   light: {
-    background: 'linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%)',
+    background: '#faf8ef',
     boardBg: '#bbada0',
     cellBg: '#cdc1b4',
     text: '#776e65',
     textSecondary: '#8f8579',
+    buttonBg: '#8f7a66',
+    buttonHover: '#9f8a76',
+    logoTile: '#edc22e',
+    scoreBg: '#bbada0',
     tiles: {
       2: '#eee4da',
       4: '#ede0c8',
@@ -811,11 +815,12 @@ const Tile: React.FC<{ tile: Tile; size: number; theme: Theme }> = ({ tile, size
         fontWeight: 'bold',
         fontSize: `${fontSize}rem`,
         color: tile.value > 4 ? '#fff' : themes[theme].text,
-        transition: 'left 250ms cubic-bezier(0.4, 0.0, 0.2, 1), top 250ms cubic-bezier(0.4, 0.0, 0.2, 1), transform 250ms cubic-bezier(0.4, 0.0, 0.2, 1)',
+        transition: 'left 150ms cubic-bezier(0.4, 0.0, 0.2, 1), top 150ms cubic-bezier(0.4, 0.0, 0.2, 1), transform 150ms cubic-bezier(0.4, 0.0, 0.2, 1)',
         boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
         willChange: 'left, top, transform',
-        transform: 'translateZ(0)',
+        transform: 'translate3d(0, 0, 0)',
         backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden',
       }}
     >
       {tile.value}
@@ -1099,11 +1104,15 @@ const HUD: React.FC<{
   undosRemaining: number;
   soundEnabled: boolean;
   theme: Theme;
+  gameTime: number;
+  showMenu: boolean;
   onRestart: () => void;
   onUndo: () => void;
   onToggleSound: () => void;
   onToggleTheme: () => void;
   onShowStats: () => void;
+  onToggleMenu: () => void;
+  formatTime: (s: number) => string;
 }> = ({
   score,
   highScore,
@@ -1112,77 +1121,134 @@ const HUD: React.FC<{
   undosRemaining,
   soundEnabled,
   theme,
+  gameTime,
+  showMenu,
   onRestart,
   onUndo,
   onToggleSound,
   onToggleTheme,
   onShowStats,
+  onToggleMenu,
+  formatTime,
 }) => {
   return (
-    <div
-      style={{
-        marginBottom: '20px',
-      }}
-    >
-      {/* Top Row: Score and Best */}
+    <div style={{ marginBottom: '20px' }}>
+      {/* Top Row: Logo, Score, Best, Menu */}
       <div
         style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
+          gridTemplateColumns: '1fr 2fr 2fr auto',
           gap: '12px',
           marginBottom: '12px',
+          alignItems: 'stretch',
         }}
       >
+        {/* 2048 Logo Tile */}
         <div
           style={{
-            background: themes[theme].boardBg,
-            padding: '16px',
+            background: themes[theme].logoTile || '#edc22e',
             borderRadius: '8px',
-            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold',
+            fontSize: '2rem',
+            color: '#fff',
+            padding: '16px 8px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
         >
-          <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '4px', fontWeight: '600', letterSpacing: '0.5px' }}>
+          2048
+        </div>
+
+        {/* Score */}
+        <div
+          style={{
+            background: themes[theme].scoreBg || themes[theme].boardBg,
+            borderRadius: '8px',
+            padding: '8px 16px',
+            textAlign: 'center',
+            color: themes[theme].text,
+          }}
+        >
+          <div
+            style={{
+              fontSize: '0.75rem',
+              opacity: 0.8,
+              fontWeight: '600',
+              letterSpacing: '0.5px',
+              marginBottom: '4px',
+            }}
+          >
             SCORE
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{score}</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fff' }}>{score}</div>
         </div>
+
+        {/* Best */}
         <div
           style={{
-            background: themes[theme].boardBg,
-            padding: '16px',
+            background: themes[theme].scoreBg || themes[theme].boardBg,
             borderRadius: '8px',
+            padding: '8px 16px',
             textAlign: 'center',
+            color: themes[theme].text,
           }}
         >
-          <div style={{ fontSize: '0.85rem', opacity: 0.7, marginBottom: '4px', fontWeight: '600', letterSpacing: '0.5px' }}>
+          <div
+            style={{
+              fontSize: '0.75rem',
+              opacity: 0.8,
+              fontWeight: '600',
+              letterSpacing: '0.5px',
+              marginBottom: '4px',
+            }}
+          >
             BEST
           </div>
-          <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>{highScore}</div>
+          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#fff' }}>{highScore}</div>
         </div>
+
+        {/* Menu Button */}
+        <button
+          onClick={onToggleMenu}
+          className="game-button"
+          style={{
+            padding: '0 16px',
+            borderRadius: '8px',
+            border: 'none',
+            background: themes[theme].buttonBg || '#8f7a66',
+            color: '#f9f6f2',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            fontWeight: '600',
+          }}
+        >
+          ☰
+        </button>
       </div>
 
-      {/* Second Row: New and Undo buttons */}
+      {/* Second Row: New and Undo */}
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '12px',
-          marginBottom: '16px',
         }}
       >
         <button
           onClick={onRestart}
           className="game-button"
           style={{
-            padding: '16px',
+            padding: '14px',
             borderRadius: '8px',
             border: 'none',
-            background: '#ff6b5a',
-            color: '#fff',
+            background: themes[theme].buttonBg || '#8f7a66',
+            color: '#f9f6f2',
             cursor: 'pointer',
             fontSize: '1rem',
             fontWeight: '700',
-            letterSpacing: '0.5px',
+            letterSpacing: '1px',
             textTransform: 'uppercase',
           }}
         >
@@ -1193,15 +1259,15 @@ const HUD: React.FC<{
           disabled={undosRemaining === 0}
           className="game-button"
           style={{
-            padding: '16px',
+            padding: '14px',
             borderRadius: '8px',
             border: 'none',
-            background: undosRemaining > 0 ? '#ff6b5a' : themes[theme].cellBg,
-            color: '#fff',
+            background: undosRemaining > 0 ? (themes[theme].buttonBg || '#8f7a66') : themes[theme].cellBg,
+            color: '#f9f6f2',
             cursor: undosRemaining > 0 ? 'pointer' : 'not-allowed',
             fontSize: '1rem',
             fontWeight: '700',
-            letterSpacing: '0.5px',
+            letterSpacing: '1px',
             textTransform: 'uppercase',
             opacity: undosRemaining > 0 ? 1 : 0.4,
           }}
@@ -1210,102 +1276,151 @@ const HUD: React.FC<{
         </button>
       </div>
 
-      {/* Bottom Row: Settings and extras */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: '8px',
-        }}
-      >
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button
-            onClick={onToggleSound}
-            className="game-button"
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              background: themes[theme].boardBg,
-              color: themes[theme].text,
-              cursor: 'pointer',
-              fontSize: '1.1rem',
-            }}
-          >
-            {soundEnabled ? '🔊' : '🔇'}
-          </button>
-          <button
-            onClick={onToggleTheme}
-            className="game-button"
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              background: themes[theme].boardBg,
-              color: themes[theme].text,
-              cursor: 'pointer',
-              fontSize: '1.1rem',
-            }}
-          >
-            🎨
-          </button>
-          <button
-            onClick={onShowStats}
-            className="game-button"
-            style={{
-              padding: '8px 12px',
-              borderRadius: '6px',
-              border: 'none',
-              background: themes[theme].boardBg,
-              color: themes[theme].text,
-              cursor: 'pointer',
-              fontSize: '1.1rem',
-            }}
-          >
-            📊
-          </button>
-        </div>
-
-        <div
-          style={{
-            background: themes[theme].boardBg,
-            padding: '8px 16px',
-            borderRadius: '6px',
-            fontSize: '0.9rem',
-            fontWeight: '600',
-          }}
-        >
-          {moves} moves
-        </div>
-      </div>
-
-      {/* Combo badge - positioned absolutely so it doesn't push layout */}
+      {/* Combo badge - absolutely positioned */}
       {comboCount > 1 && (
         <div
           className="combo-badge"
           style={{
             position: 'absolute',
-            top: '120px',
+            top: '180px',
             right: '20px',
             background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%)',
-            padding: '12px 20px',
+            padding: '10px 18px',
             borderRadius: '8px',
             animation: 'pulse 0.6s ease-in-out infinite',
             boxShadow: '0 4px 16px rgba(255,107,107,0.5)',
             zIndex: 100,
           }}
         >
-          <div style={{ fontSize: '0.75rem', marginBottom: '2px' }}>COMBO</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>×{comboCount}</div>
+          <div style={{ fontSize: '0.7rem', marginBottom: '2px', color: '#fff' }}>COMBO</div>
+          <div style={{ fontSize: '1.3rem', fontWeight: 'bold', color: '#fff' }}>×{comboCount}</div>
         </div>
       )}
-    </div>
-  );
-};
-          🔄 New Game
-        </button>
-      </div>
+
+      {/* Menu Overlay */}
+      {showMenu && (
+        <>
+          {/* Click overlay to close menu */}
+          <div
+            onClick={onToggleMenu}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              background: 'rgba(0,0,0,0.5)',
+              zIndex: 999,
+            }}
+          />
+          
+          {/* Menu Panel */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              right: 0,
+              width: '280px',
+              height: '100vh',
+              background: themes[theme].boardBg,
+              boxShadow: '-4px 0 20px rgba(0,0,0,0.3)',
+              zIndex: 1000,
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ margin: 0, fontSize: '1.5rem', color: '#fff' }}>Menu</h3>
+              <button
+                onClick={onToggleMenu}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  color: '#fff',
+                  fontSize: '1.5rem',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+
+            <button
+              onClick={() => {
+                onToggleSound();
+                onToggleMenu();
+              }}
+              className="game-button"
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: themes[theme].cellBg,
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '600',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>{soundEnabled ? '🔊' : '🔇'}</span>
+              <span>Sound: {soundEnabled ? 'On' : 'Off'}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onToggleTheme();
+                onToggleMenu();
+              }}
+              className="game-button"
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: themes[theme].cellBg,
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '600',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>🎨</span>
+              <span>Theme: {theme}</span>
+            </button>
+
+            <button
+              onClick={() => {
+                onShowStats();
+                onToggleMenu();
+              }}
+              className="game-button"
+              style={{
+                padding: '16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: themes[theme].cellBg,
+                color: '#fff',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: '600',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+              }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>📊</span>
+              <span>Statistics</span>
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 };
@@ -1425,9 +1540,11 @@ function App() {
   const [engine, setEngine] = useState<GameEngine>(() => initGame(boardSize));
   const [particles, setParticles] = useState<Particle[]>([]);
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [theme, setTheme] = useState<Theme>('dark');
+  const [theme, setTheme] = useState<Theme>('light'); // Default to light theme
   const [showStats, setShowStats] = useState(false);
   const [showStartButton, setShowStartButton] = useState(true);
+  const [showMenu, setShowMenu] = useState(false);
+  const [gameTime, setGameTime] = useState(0);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const initializeAudio = useCallback(() => {
@@ -1463,9 +1580,32 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  // Timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!engine.state.gameOver && !showStartButton) {
+        setGameTime((prev) => prev + 1);
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [engine.state.gameOver, showStartButton]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleMove = useCallback(
     (direction: Direction) => {
       if (engine.state.gameOver) return;
+
+      // Debounce moves to prevent double-taps
+      const now = Date.now();
+      if ((window as any).lastMoveTime && now - (window as any).lastMoveTime < 180) {
+        return; // Ignore move if too soon after last one
+      }
+      (window as any).lastMoveTime = now;
 
       const oldState = JSON.parse(JSON.stringify(engine.state));
       const moved = move(engine, direction, boardSize);
@@ -1526,6 +1666,7 @@ function App() {
 
     setEngine(initGame(boardSize));
     setParticles([]);
+    setGameTime(0); // Reset timer
   };
 
   const handleUndo = () => {
@@ -1620,28 +1761,6 @@ function App() {
       }}
     >
       <div style={{ maxWidth: '600px', width: '100%', position: 'relative' }}>
-        <h1
-          style={{
-            textAlign: 'center',
-            fontSize: '3rem',
-            marginBottom: '8px',
-            fontWeight: '800',
-            textShadow: '0 2px 4px rgba(0,0,0,0.3)',
-          }}
-        >
-          Zipper Merge
-        </h1>
-        <p
-          style={{
-            textAlign: 'center',
-            marginBottom: '20px',
-            opacity: 0.8,
-            fontSize: '0.95rem',
-          }}
-        >
-          Use arrow keys or WASD to play. Combine tiles to reach 2048!
-        </p>
-
         <HUD
           score={engine.state.score}
           highScore={engine.highScore}
@@ -1650,14 +1769,58 @@ function App() {
           undosRemaining={engine.undosRemaining}
           soundEnabled={soundEnabled}
           theme={theme}
+          gameTime={gameTime}
+          showMenu={showMenu}
           onRestart={handleRestart}
           onUndo={handleUndo}
           onToggleSound={() => setSoundEnabled(!soundEnabled)}
           onToggleTheme={cycleTheme}
           onShowStats={() => setShowStats(true)}
+          onToggleMenu={() => setShowMenu(!showMenu)}
+          formatTime={formatTime}
         />
 
+        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <h1
+            style={{
+              fontSize: '2.5rem',
+              marginBottom: '4px',
+              fontWeight: '800',
+              letterSpacing: '-1px',
+              color: themes[theme].text,
+            }}
+          >
+            ZipperMerge
+          </h1>
+          <p
+            style={{
+              fontSize: '1rem',
+              opacity: 0.7,
+              fontWeight: '600',
+              letterSpacing: '2px',
+              color: themes[theme].textSecondary,
+            }}
+          >
+            Slide. Zip. Merge. Survive.
+          </p>
+        </div>
+
         <Board tiles={engine.state.tiles} size={boardSize} theme={theme} particles={particles} />
+
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '16px',
+            fontSize: '0.9rem',
+            opacity: 0.7,
+            fontWeight: '600',
+            color: themes[theme].textSecondary,
+          }}
+        >
+          <div>{engine.state.moves} moves</div>
+          <div>{formatTime(gameTime)}</div>
+        </div>
 
         {engine.state.gameOver && (
           <div
@@ -1711,15 +1874,20 @@ function App() {
             justifyContent: 'center',
             zIndex: 10000,
             gap: '24px',
+            touchAction: 'none',
           }}
-          onClick={initializeAudio}
         >
           <div style={{ fontSize: '4rem' }}>🎮</div>
-          <h2 style={{ fontSize: '2rem', margin: 0, color: '#fff' }}>Zipper Merge</h2>
+          <h2 style={{ fontSize: '2rem', margin: 0, color: '#fff' }}>ZipperMerge</h2>
           <button
+            onClick={initializeAudio}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              initializeAudio();
+            }}
             style={{
-              padding: '16px 48px',
-              fontSize: '1.2rem',
+              padding: '20px 60px',
+              fontSize: '1.3rem',
               fontWeight: '600',
               border: 'none',
               borderRadius: '12px',
@@ -1727,6 +1895,8 @@ function App() {
               color: '#fff',
               cursor: 'pointer',
               boxShadow: '0 8px 32px rgba(102,126,234,0.4)',
+              WebkitTapHighlightColor: 'transparent',
+              touchAction: 'manipulation',
             }}
           >
             Tap to Start
