@@ -3,7 +3,7 @@ import './App.css';
 
 // ==================== TYPES ====================
 type Direction = 'up' | 'down' | 'left' | 'right';
-type Theme = 'dark' | 'light' | 'neon';
+type Theme = 'light' | 'dark' | 'neon' | 'sunset' | 'ocean' | 'forest';
 
 interface Tile {
   id: string;
@@ -765,6 +765,9 @@ const themes: Record<Theme, any> = {
     cellBg: '#2d0052',
     text: '#00ffff',
     textSecondary: '#ff00ff',
+    buttonBg: '#8000ff',
+    logoTile: '#ff00ff',
+    scoreBg: '#2d0052',
     tiles: {
       2: '#ff00ff',
       4: '#ff0080',
@@ -780,6 +783,84 @@ const themes: Record<Theme, any> = {
       4096: '#ff00ff',
       8192: '#ff0080',
       16384: '#ff0000',
+    },
+  },
+  sunset: {
+    background: '#fff5e6',
+    boardBg: '#d4a574',
+    cellBg: '#e8c4a0',
+    text: '#8b4513',
+    textSecondary: '#a0522d',
+    buttonBg: '#cd853f',
+    logoTile: '#ff6347',
+    scoreBg: '#d4a574',
+    tiles: {
+      2: '#ffe4b5',
+      4: '#ffd700',
+      8: '#ffa500',
+      16: '#ff8c00',
+      32: '#ff6347',
+      64: '#ff4500',
+      128: '#dc143c',
+      256: '#c71585',
+      512: '#8b008b',
+      1024: '#4b0082',
+      2048: '#ff1493',
+      4096: '#ff69b4',
+      8192: '#ff1493',
+      16384: '#c71585',
+    },
+  },
+  ocean: {
+    background: '#e6f7ff',
+    boardBg: '#4682b4',
+    cellBg: '#87ceeb',
+    text: '#003366',
+    textSecondary: '#1e4d7b',
+    buttonBg: '#5f9ea0',
+    logoTile: '#00ced1',
+    scoreBg: '#4682b4',
+    tiles: {
+      2: '#e0f7fa',
+      4: '#b2ebf2',
+      8: '#80deea',
+      16: '#4dd0e1',
+      32: '#26c6da',
+      64: '#00bcd4',
+      128: '#00acc1',
+      256: '#0097a7',
+      512: '#00838f',
+      1024: '#006064',
+      2048: '#00ffff',
+      4096: '#00e5ff',
+      8192: '#00b8d4',
+      16384: '#0097a7',
+    },
+  },
+  forest: {
+    background: '#f0f4e8',
+    boardBg: '#6b8e23',
+    cellBg: '#9acd32',
+    text: '#2d4a1f',
+    textSecondary: '#556b2f',
+    buttonBg: '#808000',
+    logoTile: '#32cd32',
+    scoreBg: '#6b8e23',
+    tiles: {
+      2: '#f0fff0',
+      4: '#e0f2e0',
+      8: '#c8e6c9',
+      16: '#a5d6a7',
+      32: '#81c784',
+      64: '#66bb6a',
+      128: '#4caf50',
+      256: '#43a047',
+      512: '#388e3c',
+      1024: '#2e7d32',
+      2048: '#00ff00',
+      4096: '#76ff03',
+      8192: '#64dd17',
+      16384: '#4caf50',
     },
   },
 };
@@ -1422,8 +1503,20 @@ const HUD: React.FC<{
                 WebkitTapHighlightColor: 'transparent',
               }}
             >
-              <span style={{ fontSize: '1.5rem' }}>🎨</span>
-              <span>Theme: {theme}</span>
+              <span style={{ fontSize: '1.5rem' }}>
+                {theme === 'light' ? '☀️' : 
+                 theme === 'dark' ? '🌙' : 
+                 theme === 'neon' ? '💎' :
+                 theme === 'sunset' ? '🌅' :
+                 theme === 'ocean' ? '🌊' : '🌲'}
+              </span>
+              <span>
+                {theme === 'light' ? 'Classic' : 
+                 theme === 'dark' ? 'Midnight' : 
+                 theme === 'neon' ? 'Neon Dreams' :
+                 theme === 'sunset' ? 'Sunset Glow' :
+                 theme === 'ocean' ? 'Ocean Depths' : 'Forest Mystique'}
+              </span>
             </button>
 
             <button
@@ -1782,7 +1875,7 @@ function App() {
   }, [handleMove]);
 
   const cycleTheme = () => {
-    const themes: Theme[] = ['dark', 'light', 'neon'];
+    const themes: Theme[] = ['light', 'dark', 'neon', 'sunset', 'ocean', 'forest'];
     const currentIndex = themes.indexOf(theme);
     const nextIndex = (currentIndex + 1) % themes.length;
     setTheme(themes[nextIndex]);
