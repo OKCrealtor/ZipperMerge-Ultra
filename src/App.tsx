@@ -800,7 +800,7 @@ const Tile: React.FC<{ tile: Tile; size: number; theme: Theme }> = ({ tile, size
 
   return (
     <div
-      className={`tile ${tile.justMerged ? 'tile-merge' : ''} ${tile.isNew ? 'tile-spawn' : ''}`}
+      className={`tile ${tile.justMerged ? 'tile-merge' : ''} ${tile.isNew ? 'tile-spawn' : ''} ${tile.value >= 128 ? 'tile-value-high' : ''}`}
       style={{
         position: 'absolute',
         left: `${x}%`,
@@ -1666,12 +1666,8 @@ function App() {
           if (tile.value >= 32) {
             triggerHaptic(tile.value >= 128 ? 'heavy' : 'medium');
             
-            // Disable particles on mobile for 60fps performance
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            if (!isMobile) {
-              const newParticles = createEnhancedFireworks(x, y, tile.value, color);
-              setParticles((prev) => [...prev, ...newParticles]);
-            }
+            // CSS shine effect instead of particles for 60fps
+            // The tile-merged class triggers the shine animation in CSS
             
             if (soundEnabled) audioSystem.playMerge(tile.value, engine.state.comboCount);
           } else {
