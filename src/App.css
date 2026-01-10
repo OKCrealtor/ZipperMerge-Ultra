@@ -44,16 +44,66 @@
   }
 }
 
-/* Glowing pulse for merged tiles */
+/* Mega shine for 2048 - wider and faster */
+@keyframes shine-sweep-mega {
+  0% {
+    left: -150%;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    left: 200%;
+    opacity: 0;
+  }
+}
+
+/* Standard glow pulse */
 @keyframes glow-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
   }
   50% {
-    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.3);
+    box-shadow: 0 0 15px 3px rgba(255, 255, 255, 0.4);
   }
   100% {
     box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Stronger glow for 512-1024 */
+@keyframes glow-pulse-strong {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 25px 6px rgba(255, 255, 255, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Rainbow glow for 2048 */
+@keyframes glow-pulse-rainbow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.9);
+  }
+  25% {
+    box-shadow: 0 0 30px 8px rgba(255, 215, 0, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 35px 10px rgba(255, 255, 255, 0.8);
+  }
+  75% {
+    box-shadow: 0 0 30px 8px rgba(255, 215, 0, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 215, 0, 0);
   }
 }
 
@@ -144,12 +194,14 @@ body {
 }
 
 .tile-merge {
-  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
-             glow-pulse 400ms ease-out;
+  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* Shine effect for merged tiles */
-.tile-merge::before {
+/* Progressive shine effects based on tile value */
+
+/* 32-64: Single shine sweep */
+.tile-merge.tile-32::before,
+.tile-merge.tile-64::before {
   content: '';
   position: absolute;
   top: 0;
@@ -159,26 +211,95 @@ body {
   background: linear-gradient(
     90deg,
     rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.3) 30%,
-    rgba(255, 255, 255, 0.6) 50%,
-    rgba(255, 255, 255, 0.3) 70%,
+    rgba(255, 255, 255, 0.3) 50%,
     rgba(255, 255, 255, 0) 100%
   );
-  animation: shine-sweep 600ms ease-out;
+  animation: shine-sweep 500ms ease-out;
   pointer-events: none;
   z-index: 10;
 }
 
-/* Shimmer for high-value tiles (128+) */
-.tile-value-high {
-  background-size: 200% 100%;
-  background-image: linear-gradient(
+/* 128-256: Double shine + glow */
+.tile-merge.tile-128::before,
+.tile-merge.tile-256::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
     90deg,
-    currentColor 0%,
-    rgba(255, 255, 255, 0.3) 50%,
-    currentColor 100%
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0) 100%
   );
-  animation: shimmer 2s linear infinite;
+  animation: shine-sweep 500ms ease-out, shine-sweep 500ms 250ms ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tile-merge.tile-128,
+.tile-merge.tile-256 {
+  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+             glow-pulse 600ms ease-out;
+}
+
+/* 512-1024: Triple shine + stronger glow */
+.tile-merge.tile-512::before,
+.tile-merge.tile-1024::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 120%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.7) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine-sweep 400ms ease-out,
+             shine-sweep 400ms 200ms ease-out,
+             shine-sweep 400ms 400ms ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tile-merge.tile-512,
+.tile-merge.tile-1024 {
+  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+             glow-pulse-strong 800ms ease-out;
+}
+
+/* 2048+: MEGA shine effect - multiple waves + rainbow glow */
+.tile-merge.tile-2048::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 215, 0, 0.8) 25%,
+    rgba(255, 255, 255, 0.9) 50%,
+    rgba(255, 215, 0, 0.8) 75%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine-sweep-mega 600ms ease-out,
+             shine-sweep-mega 600ms 200ms ease-out,
+             shine-sweep-mega 600ms 400ms ease-out,
+             shine-sweep-mega 600ms 600ms ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tile-merge.tile-2048 {
+  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+             glow-pulse-rainbow 1000ms ease-out;
 }
 
 /* Reduce motion for accessibility */
@@ -191,9 +312,6 @@ body {
     animation-duration: 100ms;
   }
   .tile-merge::before {
-    animation: none;
-  }
-  .tile-value-high {
     animation: none;
   }
 }
