@@ -800,7 +800,7 @@ const Tile: React.FC<{ tile: Tile; size: number; theme: Theme }> = ({ tile, size
 
   return (
     <div
-      className={`tile ${tile.justMerged ? 'tile-merge' : ''} ${tile.isNew ? 'tile-spawn' : ''} ${tile.value >= 128 ? 'tile-value-high' : ''}`}
+      className={`tile ${tile.justMerged ? 'tile-merge' : ''} ${tile.isNew ? 'tile-spawn' : ''} ${tile.justMerged ? `tile-${tile.value}` : ''}`}
       style={{
         position: 'absolute',
         left: `${x}%`,
