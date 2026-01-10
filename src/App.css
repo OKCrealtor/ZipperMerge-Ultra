@@ -26,6 +26,47 @@
   }
 }
 
+/* Shine/Glaze Effect - Sweeps across tile */
+@keyframes shine-sweep {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    left: 200%;
+    opacity: 0;
+  }
+}
+
+/* Glowing pulse for merged tiles */
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+/* Shimmer effect for high-value tiles */
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 @keyframes pulse {
   0%, 100% {
     transform: scale(1) translateZ(0);
@@ -94,6 +135,8 @@ body {
   -webkit-font-smoothing: antialiased;
   transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1) !important;
   transition-duration: 150ms !important;
+  position: relative;
+  overflow: hidden;
 }
 
 .tile-spawn {
@@ -101,7 +144,41 @@ body {
 }
 
 .tile-merge {
-  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: tile-merge 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+             glow-pulse 400ms ease-out;
+}
+
+/* Shine effect for merged tiles */
+.tile-merge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 30%,
+    rgba(255, 255, 255, 0.6) 50%,
+    rgba(255, 255, 255, 0.3) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  animation: shine-sweep 600ms ease-out;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Shimmer for high-value tiles (128+) */
+.tile-value-high {
+  background-size: 200% 100%;
+  background-image: linear-gradient(
+    90deg,
+    currentColor 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    currentColor 100%
+  );
+  animation: shimmer 2s linear infinite;
 }
 
 /* Reduce motion for accessibility */
@@ -112,6 +189,12 @@ body {
   .tile-spawn,
   .tile-merge {
     animation-duration: 100ms;
+  }
+  .tile-merge::before {
+    animation: none;
+  }
+  .tile-value-high {
+    animation: none;
   }
 }
 
